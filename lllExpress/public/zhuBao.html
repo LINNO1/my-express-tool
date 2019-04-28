@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>加载珠宝</title>
+	<style type="text/css">
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		ul, li {
+			list-style: none;
+		}
+		a {
+			text-decoration: none;
+		}
+		body {
+  			font: 12px/150% Arial,Verdana,"\5b8b\4f53";
+  			color: #666;
+		}
+		.clearfix:after {
+			content: '';
+			display: block;
+			clear: both;
+		}
+		.ct {
+			width: 720px;
+			margin: 0 auto;
+	
+		}
+		.ct>h1 {
+			
+			margin-left: 20px;
+			padding: 10px 0;
+
+		}
+		.content {
+		   margin-bottom: 20px;
+		}
+		.content .prod {
+			width: 220px;
+			margin: 20px 0 0 20px;
+			padding: 10px 20px;
+			border: 1px solid #ccc;
+			float: left;
+			text-align: center;
+			color: #fff;
+			position: relative;
+		}
+        
+      .prod .cover {
+      	    position: absolute;
+      	    top: 0;
+      	    left: 0;
+      	    right: 0;
+      	    bottom: 0;
+      	    background: #333;
+            opacity: 0;
+      }
+      .prod .cover:hover {      	   
+            opacity: 0.6;
+      }
+      .btn {
+      	   color: red;
+      	   border: 1px solid red;
+      	   border-radius: 5px;
+      	   padding: 10px;
+      	   background: #fff;
+      }
+      .prod .cover .btn{
+      	   position: absolute;
+      	   top: 50%;
+      	   left: 50%;
+      	   transform: translate(-50%,-50%);
+
+      }
+       .prod .prod-name {
+           color: #666;
+           text-align: left;
+       }
+       .prod .prod-price{
+           color: red;
+           text-align: left;
+       }
+       .btn-add {
+           
+            margin-left: 20px;
+           
+       }
+
+	</style>
+</head>
+<body>
+   <div class="ct">
+     	<h1>珠宝首饰</h1>
+     	<ul class="content clearfix">
+     		<li class="prod">
+	            <div class="cover"><a class="btn" href="#">立即抢购</a></div>
+	            <a href="#">
+	          		  <img src="http://img10.360buyimg.com/N3/jfs/t1360/330/897475737/123557/23624706/55b05e25N13d4ec5e.jpg" alt="">
+	          		  <div class="prod-name">藏美千足金和田玉金镶玉路路通吊坠</div>
+	           		  <div class="prod-price">￥1699.00</div>
+	            </a>
+	       </li>
+	       <li class="prod">
+	            <div class="cover"><a class="btn" href="#">立即抢购</a></div>
+	            <a href="#">
+	          		  <img src="http://img10.360buyimg.com/N3/jfs/t1360/330/897475737/123557/23624706/55b05e25N13d4ec5e.jpg" alt="">
+	          		  <div class="prod-name">藏美千足金和田玉金镶玉路路通吊坠</div>
+	           		  <div class="prod-price">￥1699.00</div>
+	            </a>
+	       </li>
+	       <li class="prod">
+	            <div class="cover"><a class="btn" href="#">立即抢购</a></div>
+	            <a href="#">
+	          		  <img src="http://img10.360buyimg.com/N3/jfs/t1360/330/897475737/123557/23624706/55b05e25N13d4ec5e.jpg" alt="">
+	          		  <div class="prod-name">藏美千足金和田玉金镶玉路路通吊坠</div>
+	           		  <div class="prod-price">￥1699.00</div>
+	            </a>
+	       </li>
+     	</ul>
+     
+      <a href="#" class="btn btn-add">添加</a>
+   </div>
+   <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+   <script type="text/javascript">
+
+              
+             $('.btn-add').on('click',function(e){
+                 e.preventDefault();    
+
+
+
+                 myAjax({
+                    type: 'get',
+                    url: 'http://localhost:8080/zhubao.json', //模拟跨域
+                    data: {
+                        index: 1,
+                        length: 3
+                      },
+                dataType: 'json',
+                onsuccess: function(ret){
+                  console.log('111');
+                      if(ret.status===0){
+                        console.log(ret.data)
+                             renderData(ret.data);
+                      }else{
+                           $('.content').html('<h3>返回数据出错</h3>');
+                      }     
+              },
+             onerror: function(){
+                $('.content').html('<h3>系统出错</h3>');
+              }
+            });
+
+                    /*$.ajax({
+                    	url:'/zhubao',
+                    	type: 'post',
+                    	dataType:'json',
+                      data:{
+                        index: 1,
+                        length: 3
+                      }
+                   
+
+                    }).done(function(ret){
+                      console.log('111');
+                    	if(ret.status===0){
+                        console.log(ret.data)
+                             renderData(ret.data);
+                      }else{
+                           $('.content').html('<h3>返回数据出错</h3>');
+                      }
+                    	
+                    }).fail(function(){
+                    	 $('.content').html('<h3>系统出错</h3>');
+                    })*/
+              })
+              function renderData(data){
+              	  data.forEach(function(ele,idx){
+                      var prodhtml=getProdHtml(ele); 
+                      $('.content').append(prodhtml);
+              	  })
+                     
+              }
+              function getProdHtml(eachNode){
+              	 var html ='';
+              	 html+='<li class="prod"> <div class="cover"><a class="btn" href="javascript:void(0);"> 立即抢购</a></div>'+
+	                    '<a href="javascript:void(0);"><img src='+eachNode.img+' alt=""><div class="prod-name">'+eachNode.name+'</div>'+
+	           		   '<div class="prod-price">'+eachNode.price+'</div> </a></li>';
+	           		   return html;
+              }
+              function myAjax(ajaxObj){
+          //-----------参数初始化--------------------
+          ajaxObj.type = ajaxObj.type||'get';
+          ajaxObj.data = ajaxObj.data||{};
+          ajaxObj.dataType = ajaxObj.dataType||'json';
+          ajaxObj.onerror = ajaxObj.onerror||function(){};
+          ajaxObj.onsuccess = ajaxObj.onsuccess||function(){};
+          var query = '';
+          //-------------拼接query----------------------
+          for(var key in ajaxObj.data){
+            query+=key+'='+ajaxObj.data[key]+'&';
+          }
+          query = query.substr(0,query.length-1);
+          //------------发送ajax请求-------------------
+          //----------接收数据时，对数据格式区分：text 还是 json
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function(){
+            if(xhr.readyState===4){
+              if(xhr.status>=200&&xhr.status<300||xhr.status===304){
+                if(ajaxObj.dataType.toLowerCase()==='text'){
+                  ajaxObj.onsuccess(xhr.responseText);
+                }
+                if(ajaxObj.dataType.toLowerCase()==='json'){
+                  ajaxObj.onsuccess(JSON.parse(xhr.responseText));
+                }
+              }else{
+                ajaxObj.onerror();
+              }
+            }
+          }
+          //-----------发送数据时，对post 和 get 区分
+          if(ajaxObj.type.toLowerCase()=='post'){
+            //体现在 Request URL 和 method 中
+            xhr.open(ajaxObj.type,ajaxObj.url,true);
+            //这里的内容会体现在 Request Headers中
+            xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+            xhr.send(query); //这里的内容会体现在 formdata中
+          }
+          if(ajaxObj.type.toLowerCase()==='get'){
+            //拼接的query 会显示在 query string parameter中
+            xhr.open(ajaxObj.type,ajaxObj.url+'?'+query,true);
+            xhr.send();
+          }
+          
+        }
+
+
+   </script>
+</body>
+</html>

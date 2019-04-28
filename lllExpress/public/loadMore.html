@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ajax 加载更多 原生DOM实现</title>
+	<style type="text/css">
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		ul,li {
+			list-style: none;
+		}
+		a {
+			text-decoration: none;
+			display: block;
+			color: #000;
+		}
+		.loadMore li {
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 8px;
+            cursor: pointer;
+		}
+		.loadMore li:hover {
+           background: green;
+		}
+		#btn-loadMore {
+            display: block;
+            width: 90px;
+            margin: 0 auto;
+            text-align: center;
+            padding:  8px 0; 
+            font-size: 16px;        
+            color: #e27272;
+            border: 1px solid #e27272;
+            border-radius: 2px;
+		}
+	</style>
+</head>
+<body>
+  <div class="ct">
+  	<ul class="loadMore">
+  		<li>内容1</li>
+  		<li>内容2</li>
+  	</ul>
+  	<a href="javascript:void(0)" id='btn-loadMore'>加载更多</a>
+  </div>
+
+
+  <script type="text/javascript">
+     var curIndex =3;
+     var isDataArrive = true;
+     var btnLoadmore = document.querySelector('#btn-loadMore');
+     var ct = document.querySelector('.loadMore');
+     console.log(btnLoadmore)
+     btnLoadmore.addEventListener('click',function(e){
+           e.preventDefault();
+           if(!isDataArrive){ return }
+           loadData(renderPage);
+      
+           
+    
+
+     })
+
+     function renderPage(data){
+         var fragment = document.createDocumentFragment();
+         for(var i=0;i<data.length;i++){
+            var node = document.createElement('li');
+            node.innerText = data[i];
+            fragment.appendChild(node);
+         }
+          ct.appendChild(fragment);
+          curIndex+=data.length;
+     }
+
+
+    
+
+
+    function loadData(callback){
+      var ajaxObj={
+      type: 'get',
+      url:'loadMore',
+      dataType: 'json',
+      data:  {  index:curIndex, length: 5 },
+      onsuccess: callback,
+      onerror: function(){
+              console.log('err')
+      }
+    }
+      myAjax(ajaxObj);
+      // ajax(ajaxObj);
+    }
+
+
+/*Ajax 封装  简易版*/
+    function ajax(ajaxObj){
+           var xhr = new XMLHttpRequest();
+           var query='?';
+           for(var key in ajaxObj.data){
+             query+=key+'='+ajaxObj.data[key]+'&';
+           }
+           query=query.substr(0,query.length-1);
+           xhr.open(ajaxObj.type,ajaxObj.url+query,'true');
+           xhr.send();
+           isDataArrive = false;      
+           xhr.onreadystatechange = function(){
+                if(xhr.readyState===4){
+
+                    if(xhr.status>=200&&xhr.status<300||xhr.status===304){
+                       /*  var data=xhr.responseText;
+                             console.log(data)
+                           console.log(data.length)*/
+                             var data=JSON.parse(xhr.responseText);//注意要写 JSON.parse,否则data是字符串‘["内容3","内容4","内容5","内容6","内容7"]’，长度为31
+                             ajaxObj.onsuccess(data);
+                             isDataArrive = true;
+                    }else{
+                            ajaxObj.onerror();
+                    } 
+              }
+            }   
+        }
+/*Ajax 封装 终极版*/
+        function myAjax(ajaxObj){
+          ajaxObj.type = ajaxObj.type||'get';
+          ajaxObj.data = ajaxObj.data||{};
+          ajaxObj.dataType = ajaxObj.dataType||'json';
+          ajaxObj.onerror = ajaxObj.onerror||function(){};
+          ajaxObj.onsuccess = ajaxObj.onsuccess||function(){};
+          var query = '';
+          for(var key in ajaxObj.data){
+            query+=key+'='+ajaxObj.data[key]+'&';
+          }
+          query = query.substr(0,query.length-1);
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function(){
+            if(xhr.readyState===4){
+              if(xhr.status>=200&&xhr.status<300||xhr.status===304){
+                if(ajaxObj.dataType.toLowerCase()==='text'){
+                  ajaxObj.onsuccess(xhr.responseText);
+                }
+                if(ajaxObj.dataType.toLowerCase()==='json'){
+                  ajaxObj.onsuccess(JSON.parse(xhr.responseText));
+                }
+              }else{
+                ajaxObj.onerror();
+              }
+            }
+          }
+          if(ajaxObj.type.toLowerCase()=='post'){
+            xhr.open(ajaxObj.type,ajaxObj.url,true);
+            xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+            xhr.send(query);
+          }
+          if(ajaxObj.type.toLowerCase()==='get'){
+            xhr.open(ajaxObj.type,ajaxObj.url+'?'+query,true);
+            xhr.send();
+          }
+          
+        }
+
+
+  </script>
+</body>
+</html>

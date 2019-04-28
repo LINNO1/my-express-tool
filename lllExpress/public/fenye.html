@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>分页的功能</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        ul, li {
+            list-style: none;
+        }
+          a {
+            text-decoration: none;
+        }
+        .clearfix:after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+        .pagination {
+            width: 80%;
+            margin: 0 auto;
+            position: relative;
+
+        }
+        .pagination .content {
+            width: 100%;
+            height: 800px;
+            margin: 0 auto;
+            border: 1px solid;
+        }
+
+        .pagination .page {
+
+          position: absolute;
+          bottom: 10px;
+          left: 50%;
+          transform: translateX(-50%);   
+        }
+       
+        .pagination .page>li {
+          width: 40px;
+          height: 30px;
+          line-height: 30px;
+          float: left;
+          border: 1px solid #ccc;
+          border-right: none;
+          text-align: center;
+          cursor: pointer;
+
+        }
+        .pagination .page>li:last-child {        
+          border-right: 1px solid #ccc;
+          border-radius: 0 10px 10px 0;         
+        }
+        .pagination .page>li:first-child {          
+          border-radius: 10px 0 0 10px ; 
+
+        }
+        .pagination .page>.active {          
+            background: #ccc ; 
+
+        }
+
+
+        .item {
+             margin: 20px;
+             border: 1px solid #ccc;
+        }
+        .item:after {
+           content: '';
+           display: block;
+            clear: both;
+        }
+       .item a>h2 {
+         color: black;
+         margin-left: 140px;
+        }
+       .item a>p {
+         color: #ccc;
+         margin-left: 140px;
+        }
+       .item a>img {
+         width: 130px;
+         float: left;
+       }
+    </style>
+</head>
+<body>
+  <div class='ct'>
+    <!-- <div class="content">
+        
+    </div>
+      <ul class='page clearfix'> 
+          <li><<</li>
+          <li class='active'>1</li>
+          <li>2</li>
+          <li>3</li>
+          <li>4</li>
+          <li>5</li>
+          <li>6</li>
+          <li>>></li>
+      </ul> -->
+  </div>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    
+    <script type="text/javascript">
+function Pagination($ct,pages,length,callback){
+        this.$ct = $ct;
+        this.$ct.addClass('pagination');
+        this.callback = callback;
+        this.allPage = pages; //一共多少页
+        this.length = length||5; //一页显示的内容
+        this.createHtml();
+        this.init();
+        this.bind();
+        this.getData(); //先显示第一页的数据
+
+       }
+
+       Pagination.prototype={
+        init: function(){
+          this.$content = $(this.$ct.find('.content'));
+          this.$page = $(this.$ct.find('.page'));
+          this.curentPage = 1;   //当前页         
+          this.btnNum = this.$page.find('li').length; //按键的个数 index： 0~length-1  page：1 ~        
+        },
+        bind: function(){
+          var _this=this;
+          this.$page.on('click','li',function(e){
+           // e.cancelDefault();
+           var curIndex = $(this).index();
+           console.log('li:',curIndex)
+            if(curIndex===0){
+               if(_this.curentPage===1){
+                alert('当前是第一页');
+                return;
+               }
+              _this.curentPage-=1;
+            }else if(curIndex===_this.btnNum-1){  //最后一个li,则页数加一
+              if(_this.curentPage===_this.allPage){
+                alert('当前是最后一页');
+                return;
+               }
+               _this.curentPage+=1;
+            }else{
+              _this.curentPage = $(this).index();
+            }
+
+            $(this).siblings().removeClass('active');
+            _this.$page.find('li').eq(_this.curentPage).addClass('active')
+
+           
+            console.log(_this.curentPage)
+            _this.getData();
+            
+          })
+
+        },
+        //初始化按键
+        createHtml: function(){
+             var html='<div class="content"></div><ul class= "page clearfix"> <li><<</li>';
+              for(var i=0;i<this.allPage;i++){
+                   
+                    if(i===0){
+                        html+='<li class="active">'+(i+1)+'</li>'
+                    }else{
+                       html+='<li>'+(i+1)+'</li>'
+                    }
+              }
+              html+='<li>>></li></ul>'
+              this.$ct.append(html);
+              
+        },
+        /*
+    约定的接口: data: {
+               index: xxx   //当前页数
+               length: xxx   //一页显示的内容
+              }
+*/
+        getData: function(){
+          var _this =this;
+         //自己封装的ajax
+          myAjax({
+                type: 'post',
+                url: '/loadNews.json', 
+                data: {
+                   index: this.curentPage,
+                   length: this.length,
+
+                },
+                dataType: 'json',
+                onsuccess: function(text){
+                  if(text.status!==0){
+                    alert('数据获取失败');
+
+                  }else{
+                    //这里的this 指的是ajax
+                    if(_this.callback){
+                      _this.callback(text.data)
+                    }else{
+                      _this.showContent(text.data);
+                    }
+                   
+                  }           
+              },
+             onerror: function(){
+                alert('系统异常')
+              }
+            });
+
+            
+              /*$.ajax({
+                type: 'post',
+                url: '/loadNews',
+                data: {
+                   index: this.curentPage,
+                   length: this.length
+                },
+                dataType: 'json'
+              }).done(function(text){
+                  if(text.status!==0){
+                    alert('数据获取失败');
+
+                  }else{
+                    //这里的this 指的是ajax
+                    if(_this.callback){
+                      _this.callback(text.data)
+                    }else{
+                      _this.showContent(text.data);
+                    }
+                   
+                  }
+               
+
+              }).fail(function(){
+                alert('系统异常')
+              })*/
+
+        },
+        showContent: function(data){
+          var _this = this;
+          var html = '';
+          data.forEach(function(ele,idx){
+               html+= _this.getHtml(ele);
+          })
+               
+                this.$content.html(html);
+
+        },
+        getHtml: function(data){
+           if(data.length===0){
+                isDataOver = true;
+                return '<h2>没有数据了~</h2>'
+           }
+      
+            var html = '';
+           
+            html+='<li class="item"><a href='+data.link;
+            html+='><img src='+data.img+'><h2 >';
+            html+=data.title+'</h2><p>';
+            html+=data.brif+'</p></a> </li>';
+              return html;
+         }
+       }
+  new Pagination($('.ct'),5,4);
+  console.log('tongbu22222...')
+ function myAjax(ajaxObj){
+          //-----------参数初始化--------------------
+          ajaxObj.type = ajaxObj.type||'get';
+          ajaxObj.data = ajaxObj.data||{};
+          ajaxObj.dataType = ajaxObj.dataType||'json';
+          ajaxObj.onerror = ajaxObj.onerror||function(){};
+          ajaxObj.onsuccess = ajaxObj.onsuccess||function(){};
+          var query = '';
+          //-------------拼接query----------------------
+          for(var key in ajaxObj.data){
+            query+=key+'='+ajaxObj.data[key]+'&';
+          }
+          query = query.substr(0,query.length-1);
+          //------------发送ajax请求-------------------
+          //----------接收数据时，对数据格式区分：text 还是 json
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function(){
+            if(xhr.readyState===4){
+              if(xhr.status>=200&&xhr.status<300||xhr.status===304){
+                if(ajaxObj.dataType.toLowerCase()==='text'){
+                  ajaxObj.onsuccess(xhr.responseText);
+                }
+                if(ajaxObj.dataType.toLowerCase()==='json'){
+                  ajaxObj.onsuccess(JSON.parse(xhr.responseText));
+                }
+              }else{
+                ajaxObj.onerror();
+              }
+            }
+          }
+          //-----------发送数据时，对post 和 get 区分
+          if(ajaxObj.type.toLowerCase()=='post'){
+            //体现在 Request URL 和 method 中
+            xhr.open(ajaxObj.type,ajaxObj.url,true);
+            //这里的内容会体现在 Request Headers中
+            xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+            xhr.send(query); //这里的内容会体现在 formdata中
+          }
+          if(ajaxObj.type.toLowerCase()==='get'){
+            //拼接的query 会显示在 query string parameter中
+            xhr.open(ajaxObj.type,ajaxObj.url+'?'+query,true);
+            xhr.send();
+          }
+          
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>新闻加载页 懒加载</title>
+</head>
+<style type="text/css">
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+	ul, li{
+		list-style: none;
+	}
+	a {
+		text-decoration: none;
+	}
+
+    .ct {
+    	width: 800px;
+    	margin: 0 auto;
+    	border: 1px sold;
+    }
+    .item {
+    	margin-top: 20px;
+    }
+    .item:after {
+		content: '';
+		display: block;
+		clear: both;
+	}
+    .item a>h2 {
+    	color: black;
+    	margin-left: 140px;
+    }
+    .item a>p {
+    	color: #ccc;
+    	margin-left: 140px;
+    }
+    .item a>img {
+    	width: 130px;
+    	float: left;
+    }
+    .load-more {
+    	height: 20px;
+    	margin-top: 10px;
+    	border: 1px solid;
+    	visibility: hidden;
+
+    }
+
+</style>
+<body>
+	<div class="ct">
+      <ul class="news">
+            
+      </ul>
+      <p class="load-more">hahaha</p>
+    </div>
+ <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+<script type="text/javascript">
+	var curIndex=1;
+    //问题： 数据加载完毕，看到标记，还像后台要数据
+    //解决： isDataOver用来判断数据是否全部加载完毕，当得到的数据长度为空时，认为加载完毕
+    var isDataOver = false;
+    //问题： 滚动太快，数据还没到来，又像后台要数据
+    //解决： isNewArrive为状态所，判断数据是否到来，当done   的时候说明数据已经到来，当getnews时认为数据没到
+    var isNewArrive = true;
+
+  //加载更多方式加载
+	/*$('.load-more').on('click',function(){
+			console.log('click')
+               getNews(renderNews);
+               curIndex++;
+	})*/
+    
+   //先想后台要一次数据，否则初始页面上一片空白，也没有滚动条
+		getNews(renderNews);
+				
+		//当窗口滚动时，向后台要数据	
+		$(window).on('scroll',function(){
+			//如果看到加载的标志说明页面已经到底，然后判断数据是否加载完毕，数据是否已经到来
+			if(checkShow($('.load-more'))&&!isDataOver&&isNewArrive){
+				console.log('show')
+				getNews(renderNews);
+				curIndex++;
+			}
+		}) 
+    // jquery ajax 要数据
+      function getNews(callback){
+      	isNewArrive = false;
+			$.ajax({
+				url:'/loadNews',
+				type: 'get',
+				dataType: 'json',
+				data: {
+					 index: curIndex,
+           length: 1
+					 
+				}
+			}).done(function(ret){
+				    isNewArrive = true;
+				    if(ret.status===0){
+				    	callback(ret.data)
+				    }else{
+                        alert('获取数据出错')
+				    }
+					
+					//数据处理完毕，再此判断，用来解决页面上数据太少，没有滚动条，无法滚的问题
+			        if(checkShow($('.load-more'))&&!isDataOver&&isNewArrive){
+				         console.log('show')
+				          getNews(renderNews);
+				         curIndex++;
+			         }
+					 
+			}).fail(function(){alert('系统出现异常')})
+		}
+		//处理数据
+		function renderNews(ret){		
+		         	console.log(ret)
+              	var html = getHtml(ret);
+              	$('.news').append(html);
+              	
+                             
+		}
+		//拼接HTML
+  		function getHtml(data){
+  			if(data.length===0){
+  				isDataOver = true;
+               return '<h2>没有数据了~</h2>'
+  			}
+  			var html = '';
+  			data=data[0];
+  			html+='<li class="item"><a href='+data.link;
+  			html+='><img src='+data.img+'><h2 >';
+  			html+=data.title+'</h2><p>';
+  			html+=data.brif+'</p></a> </li>';
+            	return html;
+  		}
+
+        
+
+   //判断一个标签是否出现在页面上
+		function checkShow($node){
+             var scrollTop = $(window).scrollTop();
+             var offsetTop = $node.offset().top;
+             var windowHeight = $(window).height();
+             var nodeHeight = $node.height();
+             /*console.log(scrollTop);
+              console.log(offsetTop);
+              console.log(windowHeight)*/
+             if(offsetTop+nodeHeight>scrollTop && offsetTop<scrollTop+windowHeight){
+             	return true;
+             }
+             return false;
+		}
+
+</script>
+</body>
+</html>
