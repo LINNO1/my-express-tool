@@ -38,6 +38,7 @@ function readFile(filePath,req,res,next){
                                                 
                           res.writeHead(200,'ok~');                           
                           res.write(JSON.stringify( senddata ),'binary');
+                          console.log('通信关闭了~~~')
                           res.end();
                                                               
                         
@@ -45,6 +46,7 @@ function readFile(filePath,req,res,next){
 
                         res.write(fileContent,'binary');
                        res.end();
+                       console.log('通信关闭了~~~')
                         
                    }
                    

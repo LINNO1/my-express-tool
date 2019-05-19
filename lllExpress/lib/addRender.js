@@ -8,7 +8,7 @@ var ejs = require('ejs');
 function addRender(req,res,app){
    
    res.render=function(tplPath,data){
-   console.log(app.get('view')); //放模板的文件夹 tplPath 具体的模板文件
+   console.log('模板引擎',app.get('view')); //放模板的文件夹 tplPath 具体的模板文件
    var fullPath = path.join(app.get('view'),tplPath);
     
    /*fullPath 模板文件的路径， data 要转换文件的内容 str 转换结果*/

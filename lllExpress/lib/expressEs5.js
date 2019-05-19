@@ -1,11 +1,10 @@
-var url = require('url');
-var readFile = require('./readFile');
 var path = require('path');
-/*模板引擎*/
-var addRender = require('./addRender');
-var Mime = require('./mime.js');
-//自己写的bodyParse.js
-var bodyParse = require('./bodyParse.js');
+var url = require('url');
+var fs=require('fs');
+var readFile = require('./readFile');
+var cache = require('./cache');
+
+
 /*核心： 发布订阅模式 app.use()相当于一个容器，把所有要执行的任务放在里面
 通过 next()来执行*/
 
@@ -14,10 +13,12 @@ function express() {
   var app = function (req, res){
   	 var i=0;
   	 /*初始化 req.render req.query req.body */
+
+    /* bodyParse(req); 
      addQuery(req);
-     bodyParse(req); 
+     
      Mime(req,res);
-     addRender(req,res,app);
+     addRender(req,res,app);*/
      next();
   	//遍历这个taskArr,执行其中的函数,注意 next()只往下执行一个
      function next(){
@@ -79,23 +80,33 @@ express.static=function(staticPath){
           var pathObj = url.parse(req.url,true);
         
           if(pathObj.pathname==='/'){
-    		 pathObj.pathname+='index.html';
-   			}   
-   		   console.log(staticPath);
-  		   var filePath = path.join(staticPath,pathObj.pathname);  
-  		   readFile(filePath,req,res, next);  
-           
+    		      pathObj.pathname+='index.html';
+   			  }   
+   		   
+  		   var filePath = path.join(staticPath,pathObj.pathname); 
+         console.log('静态页面: ',filePath); 
+  		  /* fs.readFile(filePath,'binary',function(err,content){
+             if(err){
+                  console.log('静态页面读取出错')
+                  next();
+             }else{
+                  res.setHeader('Content-Type','text/html');
+                  res.writeHeader(200,'ok~');
+                  res.write(content,'binary');
+                  res.end();
+                  console.log('通信关闭了~~~')
+             }
+
+         })*/
+         //静态文件加上缓存处理
+          cache.handleCache(req,res,filePath,next);
+          //cache.handleCacheEtag(req,res,filePath,next);
 	}
 
   
 }
 
-function addQuery(req){
-	 var pathObj = url.parse(req.url,true);
-     req.query=pathObj.query;
-     console.log("req.query=");
-     console.log(req.query);
-}
+
 
 
 module.exports=express;
