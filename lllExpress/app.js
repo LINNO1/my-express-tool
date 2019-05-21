@@ -16,7 +16,8 @@ var cServer=require('./lib/cookieServer.js');
 var sessionSev = require('./lib/session.js');
 //bassic 认证
 var authorization = require('./lib/authorize.js');
-
+//处理上传附件
+var handleBodyData = require('./lib/uploadData.js')
 
 //express 是个函数，执行结果是return出 function(req,res){}
 let app = express();
@@ -50,6 +51,17 @@ app.use(function(req,res,next){addRender(req,res,app);next();});
 app.use(handleCookie);
 app.use(sessionSev.handleSessionCook); //基于cookie的session实现
 //app.use(sessionSev.handleSessionURL); //基于url的session实现
+//正则匹配  /profile/xxx  profile下任意的路径
+app.use('/profile/:username',function(req,res){
+  console.log(req.params)
+  console.log('/profile/:username')
+});
+//正则匹配  /profile/LLL/xxx  profile/LLL下任意的路径
+app.use('/profile/LLL/:xxx',function(req,res){
+  console.log('req.params',req.params)
+  res.end('/profile/LLL/:xxx');
+});
+app.use('/uploadData',handleBodyData);
 //只对访问该路径的用户进行basic认证
 app.use('/loadNews.json',authorization);
 app.use('/loadNews.json',function(req,res){	
@@ -87,10 +99,12 @@ app.use('/about', function(req, res){
   })
 })
  app.use(function(req,res){
-	res.end(404,'not found -_-');
+  
+	res.writeHead(404,'not found -_-');
+  res.end('找不到页面')
 })
 
-
+/*---------cookie记录用户的访问记录-----------------*/
  function handleCookie(req,res,next){
   //对请求头中的cookie解析，并挂在req上,记录访问次数
     req.cookies=cServer.cookieParse(req.headers.cookie);
@@ -101,6 +115,8 @@ app.use('/about', function(req, res){
   }
   next(); //如果没有写 res.end()请next(),否则报错 Provisional headers are shown，即上一次的请求没有关闭
 }
+
+
 function addQuery(req,res,next){
      var pathObj = url.parse(req.url,true);
      req.query=pathObj.query;

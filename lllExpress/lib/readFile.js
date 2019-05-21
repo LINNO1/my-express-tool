@@ -14,13 +14,16 @@ function readFile(filePath,req,res,next){
                    res.end();*/
                    next();
             }else{
-                   if(req.body.index||req.query.index){
-
-                    // pathObj.query.index length 是字符串，转为数值
-                        var curIndex =req.query.index? parseInt(req.query.index):parseInt(req.body.index);
-                        var length =req.query.length? parseInt(req.query.length):parseInt(req.body.length); 
+                   if(req.method.toLowerCase() ==='post'){
+                        var curIndex =parseInt(req.body.index);
+                        var length =parseInt(req.body.length); 
+                   }else{
+                        // pathObj.query.index length 是字符串，转为数值
+                        var curIndex =parseInt(req.query.index);
+                        var length =parseInt(req.query.length); 
                      
-                      //fileContent 是JSON格式的字符串，转为数组                  
+                   }                            
+                      //fileContent 是的字符串，转为数组                  
                         fileContent=JSON.parse(fileContent); 
                         console.log(curIndex)    
                         //截取相应的内容       
@@ -42,13 +45,7 @@ function readFile(filePath,req,res,next){
                           res.end();
                                                               
                         
-                   }else{
-
-                        res.write(fileContent,'binary');
-                       res.end();
-                       console.log('通信关闭了~~~')
-                        
-                   }
+                  
                    
             }
        })

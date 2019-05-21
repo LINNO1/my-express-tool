@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<style type="text/css">
+		.ct {
+        	width: 800px;
+        	margin: 0 auto;
+        	text-align: center;
+        }
+      
+        input{
+          display: block;
+          width: 200px;
+          margin: 10px auto;
+
+          
+        }
+        .uploadSuccess {
+        	display: none;
+        }
+         .uploadSuccess.active {
+        	display: block;
+        }
+	</style>
+</head>
+<body>
+    <div class="ct">
+    	<h3>上传文件</h3>
+       <form action='/uploadFile' method='post' enctype='multipart/form-data' id='xxform'>
+  		<input type="text" name="usename"  placeholder="用户名">
+  		<input type="hidden" name="password" >
+
+      <input type="file" name="img" placeholder="上传图片"><label class='uploadSuccess'>上传成功</label>
+     <!--  <progress max="100" value="0" id="pg"></progress> -->
+  		<input type="submit" name="">
+    </form>
+    </div>
+   <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="http://malsup.github.io/jquery.form.js"></script>
+    <script type="text/javascript">
+    
+
+           
+
+            $("#xxform").ajaxForm(function(content){
+                 
+                  
+                console.log(typeof content);
+                console.log(content); //content 
+                if(content==='upload complete'){
+                     $('.uploadSuccess').addClass('active');
+                }
+                       
+            	 
+                
+            });
+           
+        
+            
+   
+    </script>
+   	
+
+  
+
+</body>
+</html>

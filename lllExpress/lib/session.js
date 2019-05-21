@@ -88,7 +88,7 @@ function addToURL(req,key,value){
 
 function redirect(res,url){
 	res.setHeader('Location',url);
-	res.writeHead(302);//重定向
+	res.writeHead(302);//重定向,页面会自动跳转到新的url中，即Location字段的内容
   console.log('重定向~~~')
 	res.end();
 }
