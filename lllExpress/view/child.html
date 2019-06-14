@@ -1,0 +1,22 @@
+<li>
+  <dl>
+    <img src="<%= user.img %>">
+     <dt>姓名:</dt>
+    <% if(user.name) { %>
+      <dd><%= user.name %></dd>
+    <% } else { %>
+    
+      <dd>匿名用户</dd> 
+
+   <%}%>
+
+     <dt>性别:</dt>
+
+    <dd><%= user.sex %></dd>
+
+     <dt>兴趣:</dt>
+
+    <dd><%= user.hobby %></dd>
+  </dl>
+
+</li>

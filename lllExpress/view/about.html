@@ -15,7 +15,11 @@
   <dl>
     <img src="<%= img %>">
      <dt>姓名:</dt>
-    <dd><%= name %></dd>
+    <% if(obj.user) { %>
+      <dd><%= name %></dd>
+    <% } else { %>
+      <dd>匿名用户</dd> 
+   <%}%>
      <dt>性别:</dt>
     <dd><%= sex %></dd>
      <dt>兴趣:</dt>

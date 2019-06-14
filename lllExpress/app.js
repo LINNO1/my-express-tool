@@ -7,6 +7,7 @@ var express = require('./lib/expressEs5.js');
 //var bodyParser = require('body-parser');
 /*模板引擎*/
 var addRender = require('./lib/addRender.js');
+var myRender = require('./lib/render.js');
 var Mime = require('./lib/mime.js');
 //自己写的bodyParse.js
 var bodyParse = require('./lib/bodyParse.js');
@@ -47,7 +48,8 @@ app.use(function(req,res,next){
 app.use(addQuery);
 app.use(bodyParse);
 app.use(Mime);
-app.use(function(req,res,next){addRender(req,res,app);next();});
+//app.use(function(req,res,next){addRender(req,res,app);next();});
+app.use(myRender);
 app.use(handleCookie);
 app.use(sessionSev.handleSessionCook); //基于cookie的session实现
 //app.use(sessionSev.handleSessionURL); //基于url的session实现
@@ -89,7 +91,7 @@ app.use('/zhubao.json',function(req,res){
  /* 使用模板引擎*/
 /*放模板文件的地址*/
 app.set('view', path.join(__dirname, 'view'))
-app.use('/about', function(req, res){
+app.use('/about1', function(req, res){
   res.render('about.html', {
     title: '自我介绍',
     img: 'https://ps.ssl.qhimg.com/sdmt/104_132_100/t0171a9f9b9f6db621c.webp',
@@ -97,6 +99,21 @@ app.use('/about', function(req, res){
     sex: 'female',
     hobby: 'Reading Running'
   })
+});
+app.use('/about', function(req, res){
+  res.render('parent.html', {users: [{
+    title: '自我介绍',
+    img: 'https://ps.ssl.qhimg.com/sdmt/104_132_100/t0171a9f9b9f6db621c.webp',
+    name: 'LLL',
+    sex: 'female',
+    hobby: 'Reading Running'
+  },{
+    title: '自我介绍',
+    img: 'https://ps.ssl.qhimg.com/sdmt/104_132_100/t0171a9f9b9f6db621c.webp',
+    name: 'xxx',
+    sex: 'female',
+    hobby: 'Reading Running'
+  }]})
 })
  app.use(function(req,res){
   
@@ -107,9 +124,10 @@ app.use('/about', function(req, res){
 /*---------cookie记录用户的访问记录-----------------*/
  function handleCookie(req,res,next){
   //对请求头中的cookie解析，并挂在req上,记录访问次数
-    req.cookies=cServer.cookieParse(req.headers.cookie);
+   req.cookies=cServer.cookieParse(req.headers.cookie);
   if(!req.cookies||!req.cookies.isVisited){
-    res.setHeader('Set-Cookie',cServer.cookieSerilize('isVisited','1'));    
+    res.setHeader('Set-Cookie',cServer.cookieSerilize('isVisited','1')); 
+    req.cookies= cServer.cookieSerilize('isVisited','1');
   }else{
     res.setHeader('Set-Cookie',cServer.cookieSerilize('isVisited',parseInt(req.cookies.isVisited)+1));   
   }

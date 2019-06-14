@@ -33,6 +33,7 @@ var sessions={};
 
 /*处理用户的session*/
    function handleSessionCook(req,res,next){
+    console.log('req.cookies',req.cookies);
    	 var id=req.cookies[SESSION_KEY]; //拿出cookies,判断是否有id
      console.log('id',id);
      console.log('req.cookies',req.cookies);
